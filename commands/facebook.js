@@ -94,7 +94,7 @@ async function facebookCommand(sock, chatId, message) {
 
         // Try URL method first (more reliable)
         try {
-            const caption = title ? `> *DOWNLOAD BY SHADOW MD BOT*\n\n📝 Title: ${title}` : "> *DOWNLOAD BY SHADOW MD BOT*";
+            const caption = title ? `> *𝐏𝐎𝐖𝐄𝐑𝐄𝐃 𝐁𝐘 𝐅𝐌 𝐌𝐃 𝐁𝐎𝐓*\n\n📝 Title: ${title}` : "> *𝐏𝐎𝐖𝐄𝐑𝐄𝐃 𝐁𝐘 𝐅𝐌 𝐌𝐃 𝐁𝐎𝐓*";
             
             await sock.sendMessage(chatId, {
                 video: { url: fbvid },
