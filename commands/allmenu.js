@@ -1,80 +1,93 @@
 'use strict';
 
-// settings import kar lein agar image wahan hai
 let settings = {};
 try { settings = require('../settings'); } catch (e) {}
 
-// Aapki categories ka data
+// Yahan apni categories aur commands dalein
 const categories = {
-    '👑 OWNER': ['public', 'private', 'mode', 'setname', 'block', 'unblock', 'restart', 'addsudo', 'delsudo', 'broadcast'],
-    '👥 GROUP': ['kick', 'add', 'promote', 'demote', 'mute', 'unmute', 'tagall', 'hidetag', 'groupinfo', 'welcome', 'antilink'],
-    '🤖 AI': ['ai', 'chatgpt', 'gemini', 'llama', 'imagine', 'simi'],
-    '⬇️ DOWNLOAD': ['song', 'video', 'insta', 'tiktok', 'facebook', 'youtube', 'spotify', 'apk'],
-    '🛠️ TOOLS': ['ping', 'dp', 'vv', 'translate', 'base64', 'qr', 'weather', 'github', 'sticker', 'toimg'],
-    '🎉 FUN': ['joke', 'meme', 'dare', 'truth', 'roast', 'ship', 'quote', 'fact', '8ball']
+    'ＡＩ': ['ai', 'chatgpt', 'gemini', 'llama', 'imagine', 'simi', 'gpt', 'deepseek'],
+    'ＯＷＮＥＲ': ['public', 'private', 'mode', 'setname', 'block', 'unblock', 'restart', 'addsudo', 'delsudo', 'setprefix', 'broadcast'],
+    'ＧＲＯＵＰ': ['kick', 'add', 'promote', 'demote', 'mute', 'unmute', 'tagall', 'hidetag', 'groupinfo', 'welcome', 'antilink', 'antidelete'],
+    'ＤＯＷＮＬＯＡＤ': ['song', 'video', 'insta', 'tiktok', 'facebook', 'youtube', 'spotify', 'apk', 'ytmp3', 'ytmp4'],
+    'ＴＯＯＬＳ': ['ping', 'dp', 'vv', 'translate', 'base64', 'qr', 'weather', 'github', 'sticker', 'toimg', 'calc', 'runtime'],
+    'ＦＵＮ': ['joke', 'meme', 'dare', 'truth', 'roast', 'ship', 'quote', 'fact', '8ball', 'riddle']
 };
 
 async function menuCommand(sock, from, msg, isAdmin, session, args) {
-    const botName = session?.botName || "𝐒𝐘𝐄𝐃 𝐌𝐈𝐍𝐈 𝐁𝐎𝐓";
+    // ── BOT INFO ──
+    const botName = session?.botName || "𝐉𝐀𝐖𝐀𝐃-𝐌𝐃";
     const prefix = session?.prefix || ".";
-    const newsletterId = "120363431511637061@newsletter";
-    const newsletterName = "𝐒𝐘𝐄𝐃 𝐌𝐈𝐍𝐈 𝐔𝐩𝐝𝐚𝐭𝐞𝐬";
+    const ownerName = "JawadTech";
+    const totalCmds = "922";
+    const version = "7.0.0 BETA";
+    const mode = "public";
 
-    // ── TEXT JO PHOTO KE NEECHE AAYEGA ──
-    const captionText = `
-💀 *${botName}* 💀
+    // Runtime calculation
+    const up = process.uptime();
+    const h = Math.floor(up / 3600);
+    const m = Math.floor((up % 3600) / 60);
+    const s = Math.floor(up % 60);
+    const runtime = `${h}h ${m}m ${s}s`;
 
-Welcome to the official bot menu!
+    // ── NEWSLETTER INFO (Forward tag ke liye) ──
+    const newsletterId = "120363431511637061@newsletter"; // Apna ID dalein
+    const newsletterName = "JAWAD-MD Updates"; // Apna channel name dalein
 
-📁 Tap the menu button below to browse categories and commands.
-
-⚡ *Categories:* ${Object.keys(categories).length}
-☠️ *Powered By:* SYED MINI
-`.trim();
-
-    // ── BUTTONS BANAIN ──
-    // Har category ke liye ek button banega
-    const interactiveButtons = [];
+    // ── BUILDING MENU TEXT ──
+    let menuText = ``;
     
-    for (const catName of Object.keys(categories)) {
-        interactiveButtons.push({
-            name: "quick_reply",
-            buttonParamsJson: JSON.stringify({
-                display_text: catName,
-                id: `${prefix}menucat ${catName}` // Ye command trigger karega jab click hoga
-            })
+    // Header Box
+    menuText += `┌───────────────〔 ${botName} 〕\n`;
+    menuText += `├✦ Owner: ${ownerName}\n`;
+    menuText += `├✦ Commands: ${totalCmds}\n`;
+    menuText += `├✦ Runtime: ${runtime}\n`;
+    menuText += `├✦ Prefix: ${prefix}\n`;
+    menuText += `├✦ Mode: ${mode}\n`;
+    menuText += `├✦ Version: ${version}\n`;
+    menuText += `└────────────────────────○\n\n`;
+
+    // Categories List
+    for (const [catName, cmds] of Object.entries(categories)) {
+        menuText += `「 ${catName} 」\n`;
+        menuText += `┌────────────────────────\n`;
+        
+        // 3 commands per line formatting
+        let line = `├ `;
+        cmds.forEach((cmd, index) => {
+            line += `${prefix}${cmd}`;
+            if (index < cmds.length - 1) line += `, `;
+            
+            // Line break agar lambi ho jaye
+            if (line.length > 35 || index === cmds.length - 1) {
+                menuText += `${line}\n`;
+                line = `├ `;
+            }
         });
+        menuText += `└────────────────────────○\n\n`;
     }
 
+    menuText += `⚡ Powered By ${ownerName}`;
+
+    // ── SEND MESSAGE WITH PHOTO AND FORWARD TAG ──
+    const imageUrl = settings?.startimage || "https://files.catbox.moe/5w2e6g.jpg"; // Apni image ka link
+
     try {
-        // Check karein ke kya bot ke paas button library (wolfbtns) hai
-        const wolfBtns = globalThis._wolfBtns;
-        
-        if (wolfBtns && typeof wolfBtns.sendInteractiveMessage === 'function') {
-            // PHOTO KE SAATH BUTTON BHEJNA
-            await wolfBtns.sendInteractiveMessage(sock, from, {
-                image: { url: settings.startimage || "https://files.catbox.moe/5w2e6g.jpg" }, // Apni image ka link dalein
-                text: captionText,
-                footer: "🐺 System Online",
-                interactiveButtons: interactiveButtons
-            }, { quoted: msg });
-            
-        } else {
-            // FALLBACK: Agar button system fail ho jaye toh simple photo bhej de
-            throw new Error("Button system not found");
-        }
-    } catch (error) {
-        console.error("Menu Button Error:", error.message);
-        // Fallback: Agar button na lage toh normal photo + list bhej de
-        let fallbackText = captionText + "\n\n*Categories:*\n";
-        for (const [cat, cmds] of Object.entries(categories)) {
-            fallbackText += `\n*${cat}*\n${cmds.map(c => prefix + c).join(', ')}\n`;
-        }
-        
-        await sock.sendMessage(from, { 
-            image: { url: settings.startimage || "https://files.catbox.moe/5w2e6g.jpg" }, 
-            caption: fallbackText 
+        await sock.sendMessage(from, {
+            image: { url: imageUrl },
+            caption: menuText,
+            contextInfo: {
+                forwardingScore: 999, // High score means "Frequently forwarded"
+                isForwarded: true,
+                forwardedNewsletterMessageInfo: {
+                    newsletterJid: newsletterId,
+                    newsletterName: newsletterName,
+                    serverMessageId: 1
+                }
+            }
         }, { quoted: msg });
+    } catch (e) {
+        // Fallback without photo if image fails
+        await sock.sendMessage(from, { text: menuText }, { quoted: msg });
     }
 }
 
