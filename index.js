@@ -212,6 +212,7 @@ const commands = {
 const { handleAutoread } = require('./commands/autoread');
 const { handleStatusUpdate } = require('./commands/autostatus');
 const { storeMessage, handleMessageRevocation, handleSnipe } = require('./commands/antidelete');
+const allMenuCommand = require('./commands/allmenu');
 
 const app = express();
 const server = http.createServer(app);
@@ -755,6 +756,13 @@ class BotSession {
                         const messageContent = msg.message?.ephemeralMessage?.message || msg.message?.viewOnceMessage?.message || msg.message?.viewOnceMessageV2?.message || msg.message;
                         if (!messageContent) return;
 
+                        // SYED MINI: Handle native WhatsApp interactive menu selections
+                        // Do this before normal text/command parsing because list replies are not text messages.
+                        if (messageContent.listResponseMessage || msg.message?.listResponseMessage) {
+                            const handled = await allMenuCommand.handleMenuSelection(this.sock, from, msg);
+                            if (handled) return;
+                        }
+
                         let type = Object.keys(messageContent)[0];
                         const text = (messageContent.conversation || messageContent.extendedTextMessage?.text || messageContent.imageMessage?.caption || messageContent.videoMessage?.caption || '').trim();
 
@@ -901,30 +909,30 @@ class BotSession {
                                     switch (commandName) {
                                         // ===== MENU =====
                                         case 'menu': {
-                                            const customName = botData.userNames[this.userId] || msg.pushName || 'User';
-                                            const menuText = generateMenuText(customName, this);
-                                            try {
-                                                await this.sock.sendMessage(from, { image: { url: settings.startimage }, caption: menuText }, { quoted: msg });
-                                                // Send the song.mp3 file if it exists in the root directory
-                                                const songPath = path.join(__dirname, 'song.mp3');
-                                                if (fs.existsSync(songPath)) {
+                                            // Open the original WhatsApp interactive category menu.
+                                            await allMenuCommand(this.sock, from, msg, this, commands);
+
+                                            // Preserve the existing optional song.mp3 feature.
+                                            const songPath = path.join(__dirname, 'song.mp3');
+                                            if (fs.existsSync(songPath)) {
+                                                try {
                                                     const audioBuffer = fs.readFileSync(songPath);
-                                                    await this.sock.sendMessage(from, { 
-                                                        audio: audioBuffer, 
-                                                        mimetype: 'audio/mpeg', 
+                                                    await this.sock.sendMessage(from, {
+                                                        audio: audioBuffer,
+                                                        mimetype: 'audio/mpeg',
                                                         fileName: 'song.mp3',
-                                                        ptt: false 
+                                                        ptt: false
                                                     }, { quoted: msg });
+                                                } catch (audioError) {
+                                                    console.error('Menu audio send error:', audioError.message);
                                                 }
-                                            } catch (e) { 
-                                                await this.sock.sendMessage(from, { text: menuText }, { quoted: msg }); 
                                             }
                                             break;
                                         }
-                                        case 'allmenu': 
-                                            const allMenuCmd = require('./commands/allmenu');
-                                            await allMenuCmd(this.sock, from, msg, this, commands); 
+                                        case 'allmenu': {
+                                            await allMenuCommand(this.sock, from, msg, this, commands);
                                             break;
+                                        }
                                         case 'ownermenu': {
                                             const text = `*\u{1F451} OWNER MENU*\n\n\u{25FB} .public\n\u{25FB} .private\n\u{25FB} .block\n\u{25FB} .unblock\n\u{25FB} .restart\n\u{25FB} .shutdown\n\u{25FB} .bcall\n\u{25FB} .bcgc`;
                                             await this.sock.sendMessage(from, { text }, { quoted: msg });
