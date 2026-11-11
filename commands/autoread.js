@@ -6,11 +6,27 @@
 const fs = require('fs');
 const path = require('path');
 
+// ─── AAPKI DETAILS ────────────────────────────────────────────────────────
+const NEWSLETTER_JID = "120363412723420805@newsletter";
+const NEWSLETTER_NAME = "𝐅𝐌 𝐌𝐃 𝐁𝐎𝐓";
+const FORWARD_CONTEXT = {
+    forwardingScore: 1,
+    isForwarded: true,
+    forwardedNewsletterMessageInfo: {
+        newsletterJid: NEWSLETTER_JID,
+        newsletterName: NEWSLETTER_NAME,
+        serverMessageId: -1
+    }
+};
+
 // Path to store the configuration
 const configPath = path.join(__dirname, '..', 'data', 'autoread.json');
 
 // Initialize configuration file if it doesn't exist
 function initConfig() {
+    if (!fs.existsSync(path.dirname(configPath))) {
+        fs.mkdirSync(path.dirname(configPath), { recursive: true });
+    }
     if (!fs.existsSync(configPath)) {
         fs.writeFileSync(configPath, JSON.stringify({ enabled: false }, null, 2));
     }
@@ -24,15 +40,7 @@ async function autoreadCommand(sock, chatId, message) {
         if (!message.key.fromMe) {
             await sock.sendMessage(chatId, {
                 text: '❌ This command is only available for the owner!',
-                contextInfo: {
-                    forwardingScore: 1,
-                    isForwarded: true,
-                    forwardedNewsletterMessageInfo: {
-                        newsletterJid: '120363408426516135@newsletter',
-                        newsletterName: '𝗧𝗘𝗔𝗠-𝗕𝗟𝗔𝗖𝗞-𝗛𝗔T',
-                        serverMessageId: -1
-                    }
-                }
+                contextInfo: FORWARD_CONTEXT
             });
             return;
         }
@@ -55,15 +63,7 @@ async function autoreadCommand(sock, chatId, message) {
             } else {
                 await sock.sendMessage(chatId, {
                     text: '❌ Invalid option! Use: .autoread on/off',
-                    contextInfo: {
-                        forwardingScore: 1,
-                        isForwarded: true,
-                        forwardedNewsletterMessageInfo: {
-                            newsletterJid: '120363408426516135@newsletter',
-                            newsletterName: '𝗧𝗘𝗔𝗠-𝗕𝗟𝗔𝗖𝗞-𝗛𝗔T',
-                            serverMessageId: -1
-                        }
-                    }
+                    contextInfo: FORWARD_CONTEXT
                 });
                 return;
             }
@@ -78,30 +78,14 @@ async function autoreadCommand(sock, chatId, message) {
         // Send confirmation message
         await sock.sendMessage(chatId, {
             text: `✅ Auto-read has been ${config.enabled ? 'enabled' : 'disabled'}!`,
-            contextInfo: {
-                forwardingScore: 1,
-                isForwarded: true,
-                forwardedNewsletterMessageInfo: {
-                    newsletterJid: '120363408426516135@newsletter',
-                    newsletterName: '𝗧𝗘𝗔𝗠-𝗕𝗟𝗔𝗖𝗞-𝗛𝗔T',
-                    serverMessageId: -1
-                }
-            }
+            contextInfo: FORWARD_CONTEXT
         });
         
     } catch (error) {
         console.error('Error in autoread command:', error);
         await sock.sendMessage(chatId, {
             text: '❌ Error processing command!',
-            contextInfo: {
-                forwardingScore: 1,
-                isForwarded: true,
-                forwardedNewsletterMessageInfo: {
-                    newsletterJid: '120363408426516135@newsletter',
-                    newsletterName: '𝗧𝗘𝗔𝗠-𝗕𝗟𝗔𝗖𝗞-𝗛𝗔T',
-                    serverMessageId: -1
-                }
-            }
+            contextInfo: FORWARD_CONTEXT
         });
     }
 }
@@ -151,8 +135,8 @@ function isBotMentionedInMessage(message, botNumber) {
             return true;
         }
         
-        // Check for bot name mentions (optional, can be customized)
-        const botNames = [global.botname?.toLowerCase(), 'bot', '𝗧𝗘𝗔𝗠-𝗕𝗟𝗔𝗖𝗞-𝗛𝗔T', '𝗧𝗘𝗔𝗠-𝗕𝗟𝗔𝗖𝗞-𝗛𝗔T'];
+        // Check for bot name mentions
+        const botNames = [global.botname?.toLowerCase(), 'bot', '𝐅𝐌 𝐌𝐃 𝐁𝐎𝐓', 'fm md bot'];
         const words = textContent.toLowerCase().split(/\s+/);
         if (botNames.some(name => words.includes(name))) {
             return true;
@@ -173,7 +157,6 @@ async function handleAutoread(sock, message) {
         
         // If bot is mentioned, read the message internally but don't mark as read in UI
         if (isBotMentioned) {
-            
             // We don't call sock.readMessages() here, so the message stays unread in the UI
             return false; // Indicates message was not marked as read
         } else {
