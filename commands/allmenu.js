@@ -15,10 +15,10 @@ const categories = {
 
 async function menuCommand(sock, from, msg, isAdmin, session, args) {
     // ── BOT INFO ──
-    const botName = session?.botName || "𝐉𝐀𝐖𝐀𝐃-𝐌𝐃";
+    const botName = session?.botName || "𝐅𝐌 𝐌𝐃 𝐁𝐎𝐓";
     const prefix = session?.prefix || ".";
-    const ownerName = "JawadTech";
-    const totalCmds = "922";
+    const ownerName = "𝐅𝐌 𝐀𝐁𝐃𝐔𝐋𝐋𝐀𝐇";
+    const totalCmds = "175";
     const version = "7.0.0 BETA";
     const mode = "public";
 
@@ -30,8 +30,8 @@ async function menuCommand(sock, from, msg, isAdmin, session, args) {
     const runtime = `${h}h ${m}m ${s}s`;
 
     // ── NEWSLETTER INFO (Forward tag ke liye) ──
-    const newsletterId = "120363431511637061@newsletter"; // Apna ID dalein
-    const newsletterName = "JAWAD-MD Updates"; // Apna channel name dalein
+    const newsletterId = "120363412723420805@newsletter"; // Apna ID dalein
+    const newsletterName = "𝐅𝐌 𝐌𝐃 𝐁𝐎𝐓"; // Apna channel name dalein
 
     // ── BUILDING MENU TEXT ──
     let menuText = ``;
@@ -69,7 +69,7 @@ async function menuCommand(sock, from, msg, isAdmin, session, args) {
     menuText += `⚡ Powered By ${ownerName}`;
 
     // ── SEND MESSAGE WITH PHOTO AND FORWARD TAG ──
-    const imageUrl = settings?.startimage || "https://files.catbox.moe/5w2e6g.jpg"; // Apni image ka link
+    const imageUrl = settings?.startimage || "https://i.ibb.co/Nd4mgdtd/hh.png"; // Apni image ka link
 
     try {
         await sock.sendMessage(from, {
