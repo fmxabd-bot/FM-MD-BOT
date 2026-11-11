@@ -19,7 +19,7 @@ const categories = {
 
 async function menuCommand(sock, from, msg, isAdmin, session, args) {
     const prefix = session?.prefix || ".";
-    const totalCmds = "175"; // Apne hisaab se change kar lein
+    const totalCmds = "175"; 
     const version = "7.0.0 BETA";
     const mode = "public";
 
@@ -30,7 +30,7 @@ async function menuCommand(sock, from, msg, isAdmin, session, args) {
     const s = Math.floor(up % 60);
     const runtime = `${h}h ${m}m ${s}s`;
 
-    // ── BUILDING MENU TEXT (Exact Screenshot Style) ──
+    // ── BUILDING MENU TEXT ──
     let menuText = ``;
     
     // Header Box
@@ -48,9 +48,9 @@ async function menuCommand(sock, from, msg, isAdmin, session, args) {
         menuText += `「 ${catName} 」\n`;
         menuText += `┌────────────────────────\n`;
         
-        // Har command alag line par
+        // Har command ke start aur end mein * laga diya hai
         cmds.forEach((cmd) => {
-            menuText += `┇ ⬡ ${prefix}${cmd}\n`;
+            menuText += `┇ ⬡ *${prefix}${cmd}*\n`; 
         });
         
         menuText += `└────────────────────────○\n\n`;
@@ -76,7 +76,6 @@ async function menuCommand(sock, from, msg, isAdmin, session, args) {
             }
         }, { quoted: msg });
     } catch (e) {
-        // Fallback without photo
         await sock.sendMessage(from, { text: menuText }, { quoted: msg });
     }
 }
