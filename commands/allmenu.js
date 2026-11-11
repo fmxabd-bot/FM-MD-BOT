@@ -1,11 +1,15 @@
 'use strict';
 
-let settings = {};
-try { settings = require('../settings'); } catch (e) {}
+// ─── AAPKI DETAILS ────────────────────────────────────────────────────────
+const BOT_NAME = "⚡ 𝐅𝐌 𝐌𝐃 𝐁𝐎𝐓 ⚡";
+const OWNER_NAME = "⚡ 𝐎𝐖𝐍 𝐅𝐌 𝐀𝐁𝐃𝐔𝐋𝐋𝐀𝐇 ⚡";
+const BOT_IMAGE = "https://i.ibb.co/Nd4mgdtd/hh.png"; // Aapki pic
+const NEWSLETTER_JID = "120363412723420805@newsletter"; // Aapki ID
+const NEWSLETTER_NAME = "⚡ 𝐅𝐌 𝐌𝐃 𝐁𝐎𝐓 ⚡";
 
-// Yahan apni categories aur commands dalein
+// ─── CATEGORIES & COMMANDS ────────────────────────────────────────────────
 const categories = {
-    'ＡＩ': ['ai', 'chatgpt', 'gemini', 'llama', 'imagine', 'simi', 'gpt', 'deepseek'],
+    'ＡＩ': ['ai', 'bot', 'gpt', 'gpt2', 'gpt3', 'gpt35turbo', 'gpt4', 'gpt4turbo', 'gpt4o', 'gpt4omini', 'gpt4vision', 'gpt4all', 'gpt5', 'gpt5mini', 'chatgpt', 'chatgpt35'],
     'ＯＷＮＥＲ': ['public', 'private', 'mode', 'setname', 'block', 'unblock', 'restart', 'addsudo', 'delsudo', 'setprefix', 'broadcast'],
     'ＧＲＯＵＰ': ['kick', 'add', 'promote', 'demote', 'mute', 'unmute', 'tagall', 'hidetag', 'groupinfo', 'welcome', 'antilink', 'antidelete'],
     'ＤＯＷＮＬＯＡＤ': ['song', 'video', 'insta', 'tiktok', 'facebook', 'youtube', 'spotify', 'apk', 'ytmp3', 'ytmp4'],
@@ -14,11 +18,8 @@ const categories = {
 };
 
 async function menuCommand(sock, from, msg, isAdmin, session, args) {
-    // ── BOT INFO ──
-    const botName = session?.botName || "𝐅𝐌 𝐌𝐃 𝐁𝐎𝐓";
     const prefix = session?.prefix || ".";
-    const ownerName = "𝐅𝐌 𝐀𝐁𝐃𝐔𝐋𝐋𝐀𝐇";
-    const totalCmds = "175";
+    const totalCmds = "175"; // Apne hisaab se change kar lein
     const version = "7.0.0 BETA";
     const mode = "public";
 
@@ -29,16 +30,12 @@ async function menuCommand(sock, from, msg, isAdmin, session, args) {
     const s = Math.floor(up % 60);
     const runtime = `${h}h ${m}m ${s}s`;
 
-    // ── NEWSLETTER INFO (Forward tag ke liye) ──
-    const newsletterId = "120363412723420805@newsletter"; // Apna ID dalein
-    const newsletterName = "𝐅𝐌 𝐌𝐃 𝐁𝐎𝐓"; // Apna channel name dalein
-
-    // ── BUILDING MENU TEXT ──
+    // ── BUILDING MENU TEXT (Exact Screenshot Style) ──
     let menuText = ``;
     
     // Header Box
-    menuText += `┌───────────────〔 ${botName} 〕\n`;
-    menuText += `├✦ Owner: ${ownerName}\n`;
+    menuText += `┌───────────────〔 ${BOT_NAME} 〕\n`;
+    menuText += `├✦ Owner: ${OWNER_NAME}\n`;
     menuText += `├✦ Commands: ${totalCmds}\n`;
     menuText += `├✦ Runtime: ${runtime}\n`;
     menuText += `├✦ Prefix: ${prefix}\n`;
@@ -51,42 +48,35 @@ async function menuCommand(sock, from, msg, isAdmin, session, args) {
         menuText += `「 ${catName} 」\n`;
         menuText += `┌────────────────────────\n`;
         
-        // 3 commands per line formatting
-        let line = `├ `;
-        cmds.forEach((cmd, index) => {
-            line += `${prefix}${cmd}`;
-            if (index < cmds.length - 1) line += `, `;
-            
-            // Line break agar lambi ho jaye
-            if (line.length > 35 || index === cmds.length - 1) {
-                menuText += `${line}\n`;
-                line = `├ `;
-            }
+        // Har command alag line par
+        cmds.forEach((cmd) => {
+            menuText += `┇ ⬡ ${prefix}${cmd}\n`;
         });
+        
         menuText += `└────────────────────────○\n\n`;
     }
 
-    menuText += `⚡ Powered By ${ownerName}`;
+    // Footer
+    menuText += `⚡ 𝐏𝐎𝐖𝐄𝐑𝐄𝐃 𝐁𝐘 𝐅𝐌 𝐌𝐃 𝐁𝐎𝐓 ⚡\n`;
+    menuText += `⚡ 𝐎𝐖𝐍 𝐅𝐌 𝐀𝐁𝐃𝐔𝐋𝐋𝐀𝐇 ⚡`;
 
     // ── SEND MESSAGE WITH PHOTO AND FORWARD TAG ──
-    const imageUrl = settings?.startimage || "https://i.ibb.co/Nd4mgdtd/hh.png"; // Apni image ka link
-
     try {
         await sock.sendMessage(from, {
-            image: { url: imageUrl },
+            image: { url: BOT_IMAGE },
             caption: menuText,
             contextInfo: {
-                forwardingScore: 999, // High score means "Frequently forwarded"
+                forwardingScore: 999,
                 isForwarded: true,
                 forwardedNewsletterMessageInfo: {
-                    newsletterJid: newsletterId,
-                    newsletterName: newsletterName,
+                    newsletterJid: NEWSLETTER_JID,
+                    newsletterName: NEWSLETTER_NAME,
                     serverMessageId: 1
                 }
             }
         }, { quoted: msg });
     } catch (e) {
-        // Fallback without photo if image fails
+        // Fallback without photo
         await sock.sendMessage(from, { text: menuText }, { quoted: msg });
     }
 }
